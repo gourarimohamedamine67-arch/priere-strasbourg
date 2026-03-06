@@ -25,5 +25,6 @@ jobs:
       - name: Lancer le script
         env:
           NUMEROS: ${{ secrets.NUMEROS_FAMILLE }}
+          CALLMEBOT_APIKEY: ${{ secrets.CALLMEBOT_APIKEY }}
         run: |
           python priere.py
