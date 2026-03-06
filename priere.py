@@ -46,7 +46,7 @@ def envoyer_message(priere, heure):
     for numero in NUMEROS_FAMILLE:
         numero = numero.strip()
         if numero:
-            url = f"https://api.callmebot.com/whatsapp.php?phone={numero}&text={requests.utils.quote(message)}&apikey=VOTRE_CLE_API"
+            url = f"https://api.callmebot.com/whatsapp.php?phone={numero}&text={requests.utils.quote(message)}&apikey=7756006"
             requests.get(url)
             time.sleep(5)
             print(f"✅ Envoyé à {numero}")
