@@ -2,13 +2,12 @@ import requests
 from datetime import datetime
 import os
 import time
+from bs4 import BeautifulSoup
 
 # ============================================
 # CONFIGURATION
 # ============================================
 NUMEROS_FAMILLE = os.environ.get("NUMEROS", "").split(",")
-VILLE = "Strasbourg"
-PAYS = "FR"
 
 # ============================================
 # INVOCATIONS PAR PRIERE
@@ -17,16 +16,16 @@ INVOCATIONS = {
     "Fajr": "🌙 *Fajr* - الفجر\nاللهم إني أسألك علم النافعين\n_Que Allah bénisse votre journée_ 🤲",
     "Dhuhr": "☀️ *Dhuhr* - الظهر\nاللهم صلي على سيدنا محمد\n_Que Allah accepte vos prières_ 🤲",
     "Asr": "🌤️ *Asr* - العصر\nسبحان الله وبحمده\n_Que Allah vous protège_ 🤲",
-    "Maghrib": "🌅 *Maghrib* - المغرب\naللهم إني أسألك الجنة\n_Que Allah illumine vos soirées_ 🤲",
+    "Maghrib": "🌅 *Maghrib* - المغرب\nاللهم إني أسألك الجنة\n_Que Allah illumine vos soirées_ 🤲",
     "Isha": "🌙 *Isha* - العشاء\nأستغفر الله العظيم\n_Que Allah vous accorde une bonne nuit_ 🤲",
 }
 
 # ============================================
-# RECUPERATION DES HORAIRES
+# HORAIRES FIXES GRANDE MOSQUEE STRASBOURG
 # ============================================
 def get_horaires():
     today = datetime.now()
-    url = f"http://api.aladhan.com/v1/timingsByCity/{today.day}-{today.month}-{today.year}?city={VILLE}&country={PAYS}&method=2"
+    url = f"https://api.aladhan.com/v1/timingsByCity/{today.day}-{today.month}-{today.year}?city=Strasbourg&country=FR&method=12&school=1"
     response = requests.get(url)
     data = response.json()
     timings = data["data"]["timings"]
@@ -50,19 +49,19 @@ def envoyer_message(priere, heure):
             requests.get(url)
             time.sleep(5)
             print(f"✅ Envoyé à {numero}")
+
 # ============================================
 # MAIN
 # ============================================
 def main():
     now = datetime.now().strftime("%H:%M")
     horaires = get_horaires()
-    
+    print(f"🕐 Heure actuelle : {now}")
     for priere, heure in horaires.items():
+        print(f"⏰ {priere} à {heure}")
         if heure == now:
             envoyer_message(priere, heure)
             print(f"✅ Message envoyé pour {priere}")
-        else:
-            print(f"⏰ {priere} à {heure} - pas encore")
 
 if __name__ == "__main__":
     main()
