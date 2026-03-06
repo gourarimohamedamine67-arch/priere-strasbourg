@@ -1,16 +1,12 @@
 import requests
 from datetime import datetime
-import pywhatkit as kit
+import os
 import time
 
 # ============================================
-# CONFIGURATION - MODIFIE CES VALEURS
+# CONFIGURATION
 # ============================================
-NUMEROS_FAMILLE = [
-    "+33620009607",  # Remplace par les vrais numéros
-    "+33658506214",
-]
-
+NUMEROS_FAMILLE = os.environ.get("NUMEROS", "").split(",")
 VILLE = "Strasbourg"
 PAYS = "FR"
 
@@ -21,7 +17,7 @@ INVOCATIONS = {
     "Fajr": "🌙 *Fajr* - الفجر\nاللهم إني أسألك علم النافعين\n_Que Allah bénisse votre journée_ 🤲",
     "Dhuhr": "☀️ *Dhuhr* - الظهر\nاللهم صلي على سيدنا محمد\n_Que Allah accepte vos prières_ 🤲",
     "Asr": "🌤️ *Asr* - العصر\nسبحان الله وبحمده\n_Que Allah vous protège_ 🤲",
-    "Maghrib": "🌅 *Maghrib* - المغرب\nاللهم إني أسألك الجنة\n_Que Allah illumine vos soirées_ 🤲",
+    "Maghrib": "🌅 *Maghrib* - المغرب\naللهم إني أسألك الجنة\n_Que Allah illumine vos soirées_ 🤲",
     "Isha": "🌙 *Isha* - العشاء\nأستغفر الله العظيم\n_Que Allah vous accorde une bonne nuit_ 🤲",
 }
 
@@ -43,13 +39,17 @@ def get_horaires():
     }
 
 # ============================================
-# ENVOI WHATSAPP
+# ENVOI WHATSAPP VIA CALLMEBOT
 # ============================================
 def envoyer_message(priere, heure):
     message = f"🕌 Heure de la prière *{priere}* - {heure}\n\n{INVOCATIONS[priere]}"
     for numero in NUMEROS_FAMILLE:
-        kit.sendwhatmsg_instantly(numero, message)
-        time.sleep(10)
+        numero = numero.strip()
+        if numero:
+            url = f"https://api.callmebot.com/whatsapp.php?phone={numero}&text={requests.utils.quote(message)}&apikey=VOTRE_CLE_API"
+            requests.get(url)
+            time.sleep(5)
+            print(f"✅ Envoyé à {numero}")
 
 # ============================================
 # MAIN
@@ -62,6 +62,8 @@ def main():
         if heure == now:
             envoyer_message(priere, heure)
             print(f"✅ Message envoyé pour {priere}")
+        else:
+            print(f"⏰ {priere} à {heure} - pas encore")
 
 if __name__ == "__main__":
     main()
