@@ -6,7 +6,12 @@ import time
 # ============================================
 # CONFIGURATION
 # ============================================
-NUMEROS_FAMILLE = os.environ.get("NUMEROS", "").split(",")
+CONTACTS_RAW = os.environ.get("CALLMEBOT_APIKEYS", "").split(",")
+CONTACTS = {}
+for contact in CONTACTS_RAW:
+    if ":" in contact:
+        numero, apikey = contact.strip().split(":")
+        CONTACTS[numero] = apikey
 
 # ============================================
 # INVOCATIONS PAR PRIERE
@@ -20,11 +25,12 @@ INVOCATIONS = {
 }
 
 # ============================================
-# RECUPERATION DES HORAIRES
+# RECUPERATION DES HORAIRES - MEINAU STRASBOURG
 # ============================================
 def get_horaires():
     today = datetime.now()
-    url = f"https://api.aladhan.com/v1/timingsByCity/{today.day}-{today.month}-{today.year}?city=Strasbourg&country=FR&method=12&school=1"
+    # Coordonnées exactes du quartier Meinau Strasbourg
+    url = f"https://api.aladhan.com/v1/timings/{today.day}-{today.month}-{today.year}?latitude=48.5539&longitude=7.7455&method=2"
     response = requests.get(url)
     data = response.json()
     timings = data["data"]["timings"]
@@ -41,13 +47,11 @@ def get_horaires():
 # ============================================
 def envoyer_message(priere, heure):
     message = f"🕌 Heure de la prière *{priere}* - {heure}\n\n{INVOCATIONS[priere]}"
-    for numero in NUMEROS_FAMILLE:
-        numero = numero.strip()
-        if numero:
-            url = f"https://api.callmebot.com/whatsapp.php?phone={numero}&text={requests.utils.quote(message)}&apikey={os.environ.get('CALLMEBOT_APIKEY')}"
-            requests.get(url)
-            time.sleep(5)
-            print(f"✅ Envoyé à {numero}")
+    for numero, apikey in CONTACTS.items():
+        url = f"https://api.callmebot.com/whatsapp.php?phone={numero}&text={requests.utils.quote(message)}&apikey={apikey}"
+        requests.get(url)
+        time.sleep(5)
+        print(f"✅ Envoyé à {numero}")
 
 # ============================================
 # MAIN
@@ -61,9 +65,6 @@ def main():
         if heure == now:
             envoyer_message(priere, heure)
             print(f"✅ Message envoyé pour {priere}")
-
-    # TEST FORCÉ - à supprimer après test
-    envoyer_message("Dhuhr", "12:40")
 
 if __name__ == "__main__":
     main()
