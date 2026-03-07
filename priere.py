@@ -2,7 +2,6 @@ import requests
 from datetime import datetime
 import os
 import time
-from bs4 import BeautifulSoup
 
 # ============================================
 # CONFIGURATION
@@ -21,7 +20,7 @@ INVOCATIONS = {
 }
 
 # ============================================
-# HORAIRES FIXES GRANDE MOSQUEE STRASBOURG
+# RECUPERATION DES HORAIRES
 # ============================================
 def get_horaires():
     today = datetime.now()
@@ -62,6 +61,9 @@ def main():
         if heure == now:
             envoyer_message(priere, heure)
             print(f"✅ Message envoyé pour {priere}")
+
+    # TEST FORCÉ - à supprimer après test
+    envoyer_message("Dhuhr", "12:40")
 
 if __name__ == "__main__":
     main()
