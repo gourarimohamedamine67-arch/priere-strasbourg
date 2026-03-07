@@ -1,5 +1,5 @@
 import requests
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 import os
 import time
 
@@ -28,8 +28,9 @@ INVOCATIONS = {
 # RECUPERATION DES HORAIRES - MEINAU STRASBOURG
 # ============================================
 def get_horaires():
-    today = datetime.now()
-    # Coordonnées exactes du quartier Meinau Strasbourg
+    # Heure française UTC+1
+    france = timezone(timedelta(hours=1))
+    today = datetime.now(france)
     url = f"https://api.aladhan.com/v1/timings/{today.day}-{today.month}-{today.year}?latitude=48.5539&longitude=7.7455&method=2"
     response = requests.get(url)
     data = response.json()
@@ -57,9 +58,11 @@ def envoyer_message(priere, heure):
 # MAIN
 # ============================================
 def main():
-    now = datetime.now().strftime("%H:%M")
+    # Heure française UTC+1
+    france = timezone(timedelta(hours=1))
+    now = datetime.now(france).strftime("%H:%M")
     horaires = get_horaires()
-    print(f"🕐 Heure actuelle : {now}")
+    print(f"🕐 Heure France actuelle : {now}")
     for priere, heure in horaires.items():
         print(f"⏰ {priere} à {heure}")
         if heure == now:
